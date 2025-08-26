@@ -76,44 +76,97 @@ class ExpoAmapModule : Module() {
         return@AsyncFunction
       }
 
+      // 停止之前可能存在的定位请求，避免并发问题
+      locationClient.stopLocation()
+      locationClient.setLocationListener(null)
+
       // 定义一个单次定位监听器
       val listener =
           object : AMapLocationListener {
             var called = false // 保证 promise 只调用一次
+            var timeoutHandler: android.os.Handler? = null
 
             override fun onLocationChanged(location: AMapLocation?) {
               if (called) return
               called = true
+
+              // 取消超时处理
+              timeoutHandler?.removeCallbacksAndMessages(null)
 
               // 停止定位并移除 listener
               locationClient.stopLocation()
               locationClient.setLocationListener(null)
 
               if (location != null) {
-                // 返回 JS 可用的定位信息
-                promise.resolve(
-                        mapOf(
-                                "latitude" to location.latitude,
-                                "longitude" to location.longitude,
-                                "regeocode" to
-                                        mapOf(
-                                                "formattedAddress" to location.address,
-                                                "country" to location.country,
-                                                "province" to location.province,
-                                                "city" to location.city,
-                                                "district" to location.district,
-                                                "citycode" to location.cityCode,
-                                                "adcode" to location.adCode,
-                                                "street" to location.street,
-                                                "number" to location.streetNum,
-                                                "poiName" to location.poiName,
-                                                "aoiName" to location.aoiName
-                                        ),
-                        )
-                )
+                // 检查定位是否成功
+                if (location.errorCode == 0) {
+                  // 定位成功，返回 JS 可用的定位信息
+                  promise.resolve(
+                          mapOf(
+                                  "latitude" to location.latitude,
+                                  "longitude" to location.longitude,
+                                  "regeocode" to
+                                          mapOf(
+                                                  "formattedAddress" to (location.address ?: ""),
+                                                  "country" to (location.country ?: ""),
+                                                  "province" to (location.province ?: ""),
+                                                  "city" to (location.city ?: ""),
+                                                  "district" to (location.district ?: ""),
+                                                  "citycode" to (location.cityCode ?: ""),
+                                                  "adcode" to (location.adCode ?: ""),
+                                                  "street" to (location.street ?: ""),
+                                                  "number" to (location.streetNum ?: ""),
+                                                  "poiName" to (location.poiName ?: ""),
+                                                  "aoiName" to (location.aoiName ?: "")
+                                          ),
+                          )
+                  )
+                } else {
+                  // 定位失败，返回详细的错误信息
+                  val errorMsg = when (location.errorCode) {
+                    1 -> "重要参数为空"
+                    2 -> "定位失败，仅扫描到单个wifi且没有基站信息"
+                    3 -> "请求参数为空或网络被篡改"
+                    4 -> "网络连接异常，请检查网络状态"
+                    5 -> "请求被劫持，定位结果解析失败"
+                    6 -> "定位服务返回定位失败"
+                    7 -> "KEY鉴权失败，请检查API Key配置"
+                    8 -> "Android异常错误"
+                    9 -> "定位初始化异常"
+                    10 -> "定位客户端启动失败"
+                    11 -> "基站信息错误"
+                    12 -> "缺少定位权限"
+                    13 -> "定位失败，未获得WIFI列表和基站信息，且GPS不可用"
+                    14 -> "GPS定位失败，设备GPS状态差"
+                    15 -> "定位结果被模拟导致定位失败"
+                    18 -> "手机处于飞行模式且WIFI被关闭"
+                    19 -> "手机没插SIM卡且WIFI被关闭"
+                    20 -> "模糊定位异常，用户设置为大致位置权限"
+                    else -> "定位失败，错误码: ${location.errorCode}"
+                  }
+                  val detailedError = if (location.errorInfo.isNotEmpty()) {
+                    "$errorMsg - ${location.errorInfo}"
+                  } else {
+                    errorMsg
+                  }
+                  promise.reject("LOCATION_ERROR_${location.errorCode}", detailedError, null)
+                }
               } else {
-                promise.reject("LOCATION_ERROR", "获取定位失败", null)
+                promise.reject("LOCATION_ERROR", "获取定位失败，location为空", null)
               }
+            }
+
+            // 设置超时处理
+            fun setupTimeout() {
+              timeoutHandler = android.os.Handler(android.os.Looper.getMainLooper())
+              timeoutHandler?.postDelayed({
+                if (!called) {
+                  called = true
+                  locationClient.stopLocation()
+                  locationClient.setLocationListener(null)
+                  promise.reject("LOCATION_TIMEOUT", "定位请求超时，请检查网络或GPS状态", null)
+                }
+              }, 30000) // 30秒超时
             }
           }
 
@@ -121,6 +174,8 @@ class ExpoAmapModule : Module() {
       locationClient.setLocationListener(listener)
       try {
         locationClient.startLocation()
+        // 启动超时计时器
+        listener.setupTimeout()
       } catch (e: Exception) {
         locationClient.setLocationListener(null)
         promise.reject("LOCATION_EXCEPTION", "启动定位失败: ${e.message}", e)
