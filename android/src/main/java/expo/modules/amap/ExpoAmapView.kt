@@ -184,13 +184,29 @@ class ExpoAmapView(context: Context, appContext: AppContext) : ExpoView(context,
         val style = MyLocationStyle()
 
         when (mode) {
-            0 -> style.myLocationType(MyLocationStyle.LOCATION_TYPE_SHOW)
-            1 -> style.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
-            2 -> style.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER)
-            else -> style.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
-        }
+            0 -> {
+                style.myLocationType(MyLocationStyle.LOCATION_TYPE_SHOW)
+                mapView.map?.myLocationStyle = style
 
-        mapView.map?.myLocationStyle = style
+                // ⚠️ 关闭内置的连续定位更新
+                mapView.map?.isMyLocationEnabled = false
+            }
+            1 -> {
+                style.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
+                mapView.map?.myLocationStyle = style
+                mapView.map?.isMyLocationEnabled = true
+            }
+            2 -> {
+                style.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER)
+                mapView.map?.myLocationStyle = style
+                mapView.map?.isMyLocationEnabled = true
+            }
+            else -> {
+                style.myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
+                mapView.map?.myLocationStyle = style
+                mapView.map?.isMyLocationEnabled = true
+            }
+        }
     }
 
     fun setMarkers(markers: Array<Marker>) {
