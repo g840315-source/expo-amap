@@ -72,7 +72,7 @@ class TeardropMarkerView @JvmOverloads constructor(context: Context, attrs: Attr
             gravity = Gravity.CENTER
             visibility = GONE
         }
-        val labelParams = LayoutParams(w, w, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+        val labelParams = LayoutParams(LayoutParams.WRAP_CONTENT, w, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
         labelParams.bottomMargin = dp(4)
         addView(textLabel, labelParams)
 

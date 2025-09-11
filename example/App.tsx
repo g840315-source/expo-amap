@@ -219,7 +219,7 @@ export default function App() {
               latitude: point.coordinate.latitude,
               longitude: point.coordinate.longitude
             }}
-            teardropLabel={index + 1 + ''}
+            teardropLabel={'888'}
             teardropInfoText={'10:30'}
             canShowCallout
             style='teardrop'
