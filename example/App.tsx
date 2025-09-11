@@ -182,6 +182,7 @@ export default function App() {
 
   const handleTapMarker = (event: { nativeEvent: OnTapMarkerEventPayload }) => {
     // mapViewRef.current?.setCenter(event.nativeEvent.coordinate)
+    console.log(event.nativeEvent.point)
   }
 
   return (

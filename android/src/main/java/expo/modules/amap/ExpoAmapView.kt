@@ -1,6 +1,7 @@
 package expo.modules.amap
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.amap.api.maps.AMap
@@ -102,13 +103,14 @@ class ExpoAmapView(context: Context, appContext: AppContext) : ExpoView(context,
                 val pos = marker.position
                 if (id != null && pos != null) {
                     val screenPoint = mapView.map?.projection?.toScreenLocation(pos)
+                    val density = Resources.getSystem().displayMetrics.density
                     onTapMarker(
                         mapOf(
                             "id" to id,
                             "point" to
                                     mapOf(
-                                        "x" to (screenPoint?.x?.toDouble() ?: 0.0),
-                                        "y" to (screenPoint?.y?.toDouble() ?: 0.0)
+                                        "x" to ((screenPoint?.x?.toDouble() ?: 0.0) / density),
+                                        "y" to ((screenPoint?.y?.toDouble() ?: 0.0) / density)
                                     ),
                             "coordinate" to
                                     mapOf(
