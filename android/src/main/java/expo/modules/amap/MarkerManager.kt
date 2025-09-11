@@ -18,7 +18,7 @@ class MarkerManager(private val map: AMap, private val context: Context) {
     private val clusterMarkers: MutableList<ClusterMarker> = mutableListOf()
     private val dataMarkers: MutableList<Marker> = mutableListOf()
 
-    var regionClusteringOptions: RegionClusteringOptions? = null
+    private var regionClusteringOptions: RegionClusteringOptions? = null
 
     fun setMarkers(markers: Array<Marker>) {
         // 清除旧的普通标记
@@ -163,7 +163,7 @@ class MarkerManager(private val map: AMap, private val context: Context) {
         calculateClusterMarkers()
     }
 
-    fun calculateClusterMarkers() {
+    private fun calculateClusterMarkers() {
         // 移除旧聚合点
         clusterMarkers.forEach { it.marker.remove() }
         clusterMarkers.clear()

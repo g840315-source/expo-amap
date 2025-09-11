@@ -20,13 +20,13 @@ const examplePoints = [
     id: '1',
     city: '太原市',
     district: '小店区',
-    coordinate: { latitude: 37.824951, longitude: 112.566923 }
+    coordinate: { latitude: 37.795434, longitude: 112.568897 }
   },
   {
     id: '2',
     city: '太原市',
     district: '小店区',
-    coordinate: { latitude: 37.816595, longitude: 112.562669 }
+    coordinate: { latitude: 37.792454, longitude: 112.560674 }
   },
   {
     id: '3',
@@ -181,7 +181,7 @@ export default function App() {
   const mapViewRef = useRef<MapViewRef>(null)
 
   const handleTapMarker = (event: { nativeEvent: OnTapMarkerEventPayload }) => {
-    mapViewRef.current?.setCenter(event.nativeEvent.coordinate)
+    // mapViewRef.current?.setCenter(event.nativeEvent.coordinate)
   }
 
   return (
@@ -200,7 +200,7 @@ export default function App() {
         showUserLocation={true}
         userTrackingMode={0}
         regionClusteringOptions={{
-          enabled: true,
+          enabled: false,
           rules: [
             { by: 'district', thresholdZoomLevel: 12 },
             { by: 'city', thresholdZoomLevel: 10 },
@@ -210,7 +210,7 @@ export default function App() {
         onTapMarker={handleTapMarker}
         onTapPolyline={(e) => console.log(e.nativeEvent)}
       >
-        {examplePoints.map((point) => (
+        {examplePoints.map((point, index) => (
           <Marker
             key={point.id}
             id={point.id}
@@ -218,16 +218,10 @@ export default function App() {
               latitude: point.coordinate.latitude,
               longitude: point.coordinate.longitude
             }}
+            teardropLabel={index + 1 + ''}
+            teardropInfoText={'10:30'}
             canShowCallout
-            enabled
             style='teardrop'
-            teardropRandomFillColorSeed={point.id}
-            teardropInfoText='10:30'
-            extra={{
-              province: '山西省',
-              city: point.city,
-              district: point.district
-            }}
           />
         ))}
         <Polyline

@@ -120,7 +120,7 @@ class ExpoAmapView(context: Context, appContext: AppContext) : ExpoView(context,
                 }
             } catch (_: Exception) {
             }
-            false
+            true
         }
         // 折线点击
         mapView.map?.setOnPolylineClickListener { polyline ->
