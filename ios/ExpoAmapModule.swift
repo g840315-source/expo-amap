@@ -43,11 +43,11 @@ public class ExpoAmapModule: Module {
             locationManager.requestLocation(withReGeocode: true) { location, regeocode, error in
                 if let error = error {
                     let errorMessage = error.localizedDescription
-                    promise.reject("E_LOCATION_FAILED", "定位失败: \(errorMessage)")
+                    promise.reject(errorMessage, "定位失败: \(errorMessage)")
                     return
                 }
                 guard let location = location, let regeocode = regeocode else {
-                    promise.reject("E_LOCATION_FAILED", "定位失败")
+                    promise.reject("location regeocode 为空", "定位失败")
                     return
                 }
 
