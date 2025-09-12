@@ -22,7 +22,7 @@ public class ExpoAmapModule: Module {
             MAMapView.updatePrivacyAgree(AMapPrivacyAgreeStatus.didAgree)
             MAMapView.updatePrivacyShow(
                 AMapPrivacyShowStatus.didShow, privacyInfo: AMapPrivacyInfoStatus.didContain)
-
+    
             locationManager = AMapLocationManager()
             locationDelegate = LocationManagerDelegate()
             locationManager?.delegate = locationDelegate
@@ -43,7 +43,9 @@ public class ExpoAmapModule: Module {
             locationManager.requestLocation(withReGeocode: true) { location, regeocode, error in
                 if let error = error {
                     let errorMessage = error.localizedDescription
-                    promise.reject(errorMessage, "定位失败: \(errorMessage)")
+                    let apiKey = Bundle.main.object(forInfoDictionaryKey: "AMAP_API_KEY") as? String
+                    let bundleId = Bundle.main.bundleIdentifier ?? "Unknown Bundle ID"
+                    promise.reject("ApiKey:\(apiKey); BundleId:\(bundleId); ErrorMessage:\(errorMessage)", "定位失败: \(errorMessage)")
                     return
                 }
                 guard let location = location, let regeocode = regeocode else {
