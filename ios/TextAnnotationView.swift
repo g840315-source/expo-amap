@@ -16,7 +16,7 @@ class TextAnnotationView: MAAnnotationView {
             updateTextStyle()
         }
     }
-    var textOffset: CGPoint? = .zero {
+    var textOffset: CGPoint = .zero {
         didSet {
             positionLabel()
         }
@@ -117,8 +117,8 @@ class TextAnnotationView: MAAnnotationView {
     // MARK: - 定位文本
     private func positionLabel() {
         textLabel.center = CGPoint(
-            x: bounds.width / 2 + (textOffset?.x ?? 0),
-            y: bounds.height / 2 + (textOffset?.y ?? 0)
+            x: bounds.width / 2 + textOffset.x,
+            y: bounds.height / 2 + textOffset.y
         )
     }
 

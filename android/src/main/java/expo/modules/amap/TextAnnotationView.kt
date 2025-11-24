@@ -31,7 +31,7 @@ class TextAnnotationView @JvmOverloads constructor(context: Context, attrs: Attr
       applyTextStyle()
     }
 
-  var textOffset: Point? = null
+  var textOffset: Point = Point(0.0, 0.0)
     set(value) {
       field = value
       positionTextLabel()
@@ -139,17 +139,11 @@ class TextAnnotationView @JvmOverloads constructor(context: Context, attrs: Attr
   }
 
   private fun positionTextLabel() {
-    val offset = textOffset
     val lp = textLabelView.layoutParams as LayoutParams
     lp.gravity = Gravity.CENTER
     textLabelView.layoutParams = lp
-    if (offset != null) {
-      textLabelView.translationX = dpF(offset.x.toFloat())
-      textLabelView.translationY = dpF(offset.y.toFloat())
-    } else {
-      textLabelView.translationX = 0f
-      textLabelView.translationY = 0f
-    }
+    textLabelView.translationX = dpF(textOffset.x.toFloat())
+    textLabelView.translationY = dpF(textOffset.y.toFloat())
   }
 
   override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {

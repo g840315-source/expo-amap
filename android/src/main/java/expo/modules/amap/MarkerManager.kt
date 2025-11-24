@@ -76,8 +76,8 @@ class MarkerManager(private val map: AMap, private val context: Context) {
                     view.setText(data.title?.takeIf { it.isNotEmpty() } ?: data.subtitle)
                     // 文本样式
                     view.textStyle = data.textStyle
-                    // 偏移
-                    view.textOffset = data.textOffset
+                    // 偏移，确保有默认值
+                    view.textOffset = data.textOffset ?: Point(0.0, 0.0)
 
                     // 图片（异步加载尺寸生效）
                     val imgUrl = data.image?.url
